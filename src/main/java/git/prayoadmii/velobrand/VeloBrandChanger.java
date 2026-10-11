@@ -97,7 +97,7 @@ public final class VeloBrandChanger {
 
     String configuredBrand = config.getProperty("brand");
     if (configuredBrand == null || configuredBrand.isBlank()) {
-      throw new IllegalArgumentException("The 'brand' setting in " + configFile + " must not be empty.");
+      throw new IllegalArgumentException("The 'brand' Setting In " + configFile + " Must Not Be That Empty!");
     }
 
     return LegacyComponentSerializer.legacySection().serialize(MiniMessage.miniMessage().deserialize(configuredBrand));
@@ -109,7 +109,7 @@ public final class VeloBrandChanger {
       String[] arguments = invocation.arguments();
 
       if (arguments.length != 1 || !arguments[0].equalsIgnoreCase("reload")) {
-        invocation.source().sendPlainMessage("Usage: /vbrandchange reload");
+        invocation.source().sendPlainMessage("Command Usage: /vbrandchange reload");
 
         return;
       }
@@ -117,13 +117,13 @@ public final class VeloBrandChanger {
       try {
         String reloadedBrand = reloadBrand();
 
-        logger.info("Server-list ping brand reloaded as '{}'.", reloadedBrand);
+        logger.info("Server-List Ping Brand Reloaded To '{}'!", reloadedBrand);
 
         invocation.source().sendPlainMessage("Server-list ping brand reloaded to '" + reloadedBrand + "'.");
       } catch (IOException | IllegalArgumentException exception) {
-        logger.error("Unable to reload the server-list ping brand configuration.", exception);
+        logger.error("Unable To Reload The Server-List Ping Brand Configuration!", exception);
 
-        invocation.source().sendPlainMessage("Failed to reload the brand configuration. Check the proxy log for details.");
+        invocation.source().sendPlainMessage("Failed To Reload The Brand Configuration! Check The Proxy Log For Details!");
       }
     }
 
