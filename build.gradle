@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'com.gradleup.shadow' version '9.2.2'
 }
 
 group = providers.gradleProperty('pluginGroup').get()
@@ -26,7 +27,7 @@ repositories {
     }
 }
 
-configurations.named('compileClasspath') {
+configurations.named('testRuntimeClasspath') {
     attributes {
         attribute(
             org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
@@ -38,6 +39,21 @@ configurations.named('compileClasspath') {
 dependencies {
     compileOnly "com.velocitypowered:velocity-api:${velocityApiVersion}"
     annotationProcessor "com.velocitypowered:velocity-api:${velocityApiVersion}"
+    implementation 'org.yaml:snakeyaml:2.4'
+    testImplementation "com.velocitypowered:velocity-api:${velocityApiVersion}"
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+configurations.matching {
+    it.name in ['compileClasspath', 'testCompileClasspath', 'testRuntimeClasspath']
+}.configureEach {
+    attributes {
+        attribute(
+            org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+            javaVersion.toInteger()
+        )
+    }
 }
 
 java {
@@ -87,4 +103,16 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('compileJava') {
     dependsOn(tasks.named('generatePluginMetadata'))
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('shadowJar') {
+    archiveClassifier = ''
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
