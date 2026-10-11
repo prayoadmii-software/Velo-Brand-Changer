@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+}
+
+group = providers.gradleProperty('pluginGroup').get()
+version = providers.gradleProperty('pluginVersion').get()
+base.archivesName = providers.gradleProperty('pluginArtifactId').get()
+
+def pluginId = providers.gradleProperty('pluginId').get()
+def pluginName = providers.gradleProperty('pluginName').get()
+def pluginDescription = providers.gradleProperty('pluginDescription').get()
+def pluginPackage = 'git.prayoadmii.velobrand'
+def velocityApiVersion = providers.gradleProperty('velocityApiVersion').get()
+def javaVersion = providers.gradleProperty('javaVersion').get()
+def javaReleaseVersion = providers.gradleProperty('javaReleaseVersion').get()
+
+def generatedMetadataDir = layout.buildDirectory.dir('generated/sources/pluginMetadata/java/main')
+def generatedMetadataFile = generatedMetadataDir.map {
+    it.file("${pluginPackage.replace('.', '/')}/PluginMetadata.java")
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+configurations.named('compileClasspath') {
+    attributes {
+        attribute(
+            org.gradle.api.attributes.java.TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE,
+            javaVersion.toInteger()
+        )
+    }
+}
+
+dependencies {
+    compileOnly "com.velocitypowered:velocity-api:${velocityApiVersion}"
+    annotationProcessor "com.velocitypowered:velocity-api:${velocityApiVersion}"
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion(javaVersion)
+    targetCompatibility = JavaVersion.toVersion(javaVersion)
+}
+
+sourceSets {
+    main {
+        java.srcDir(generatedMetadataDir)
+    }
+}
+
+tasks.register('generatePluginMetadata') {
+    inputs.properties([
+        pluginId: pluginId,
+        pluginName: pluginName,
+        pluginVersion: version.toString(),
+        pluginDescription: pluginDescription,
+        pluginPackage: pluginPackage
+    ])
+    outputs.file(generatedMetadataFile)
+
+    doLast {
+        def javaString = { value -> groovy.json.JsonOutput.toJson(value.toString()) }
+        def outputFile = generatedMetadataFile.get().asFile
+        outputFile.parentFile.mkdirs()
+        outputFile.text = """package ${pluginPackage};
+
+public final class PluginMetadata {
+  public static final String ID = ${javaString(pluginId)};
+  public static final String NAME = ${javaString(pluginName)};
+  public static final String VERSION = ${javaString(version)};
+  public static final String DESCRIPTION = ${javaString(pluginDescription)};
+
+  private PluginMetadata() {
+  }
+}
+"""
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = javaReleaseVersion.toInteger()
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('compileJava') {
+    dependsOn(tasks.named('generatePluginMetadata'))
+}
