@@ -10,4 +10,4 @@
 
 ---
 
-### **In 1.0.1 Or Newer Version Of This Plugin Will Force Your Server Brand To End With `&r &b(Velocity)&r` [Why?]()**
+### **In 1.0.1 Or Newer Version Of This Plugin Will Force Your Server Brand To End With `&r &b(Velocity)&r` [Why?](https://github.com/prayoadmii-software/Velo-Brand-Changer/blob/main/.readmeassets/1.0.1.png?raw=true)**
