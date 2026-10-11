@@ -15,6 +15,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.error.YAMLException;
 
 public final class ConfigManager {
+  private static final String DEFAULT_BRAND = "&bVelocity&r";
   private static final Pattern YAML_SETTING = Pattern.compile("^([A-Za-z0-9_-]+):[ \\t]*(.*)$");
   private static final Pattern LEGACY_FORMATTING_CODE = Pattern.compile("&([0-9a-fk-or])", Pattern.CASE_INSENSITIVE);
 
@@ -55,12 +56,18 @@ public final class ConfigManager {
       importLegacyProperties(oldSettings);
     }
 
+    Object existingBrand = oldSettings.get("brand");
+
+    if (existingBrand == null || existingBrand instanceof String brandValue && brandValue.isBlank()) {
+      oldSettings.put("brand", DEFAULT_BRAND);
+    }
+
     String migratedConfig = migrateConfig(bundledConfig, oldSettings);
     Map<String, Object> config = loadYamlSettings(migratedConfig, configFile);
     Object configuredBrand = config.get("brand");
 
-    if (!(configuredBrand instanceof String brandValue) || brandValue.isBlank()) {
-      throw new IllegalArgumentException("The 'brand' Setting In " + configFile + " Must Be A Non-Empty String");
+    if (!(configuredBrand instanceof String brandValue)) {
+      throw new IllegalArgumentException("The 'brand' Setting In " + configFile + " Must Be A String!");
     }
 
     Files.writeString(configFile, migratedConfig, StandardCharsets.UTF_8);

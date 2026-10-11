@@ -4,7 +4,7 @@
 # Brand to show in the server list ping.
 # Supports classic Minecraft formatting codes using ampersands (for example,
 # &c&lExample&r). Codes are converted to section-sign codes in the ping response.
-brand: "&bVelocity Proxy&r"
+brand: "&bVelocity&r"
 
 # Managed by the plugin. Do not edit this value.
 cfg-ver: 1
